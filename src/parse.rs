@@ -1,4 +1,3 @@
-use std::ascii::AsciiExt;
 use std::error::Error;
 use std::fmt;
 use std::iter::Enumerate;
@@ -159,7 +158,7 @@ fn params_from_str(s: &str, iter: &mut Enumerate<Bytes>, mut start: usize) -> Re
                         is_quoted = true;
                         start = i + 1;
                     },
-                    Some((_, c)) if is_token(c) => (),
+                    Some((_, c)) if is_token_lenient(c) => (),
                     Some((i, b';')) if i > start => {
                         value = Indexed(start, i);
                         start = i + 1;
@@ -310,6 +309,10 @@ static TOKEN_MAP: [bool; 256] = byte_map![
 
 fn is_token(c: u8) -> bool {
     TOKEN_MAP[c as usize]
+}
+
+fn is_token_lenient(c: u8) -> bool {
+    c == b'/' || TOKEN_MAP[c as usize]
 }
 
 fn is_restricted_quoted_char(c: u8) -> bool {
